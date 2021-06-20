@@ -153,9 +153,9 @@ class PilotMonitorHandler(WebHandler):
     req = {}
 
     if "limit" in self.request.arguments:
-      self.numberOfJobs = int(self.request.get_argument("limit"))
+      self.numberOfJobs = int(self.get_argument("limit"))
       if "start" in self.request.arguments:
-        self.pageNumber = int(self.request.get_argument("start"))
+        self.pageNumber = int(self.get_argument("start"))
       else:
         self.pageNumber = 0
     else:
@@ -211,36 +211,36 @@ class PilotMonitorHandler(WebHandler):
     else:
       self.globalSort = [["SubmissionTime", "DESC"]]
 
-    if 'startDate' in self.request.arguments and len(self.request.get_argument("startDate")) > 0:
-      if 'startTime' in self.request.arguments and len(self.request.get_argument("startTime")) > 0:
-        req["FromDate"] = str(self.request.get_argument("startDate") + " " + self.request.get_argument("startTime"))
+    if 'startDate' in self.request.arguments and len(self.get_argument("startDate")) > 0:
+      if 'startTime' in self.request.arguments and len(self.get_argument("startTime")) > 0:
+        req["FromDate"] = str(self.get_argument("startDate") + " " + self.get_argument("startTime"))
       else:
-        req["FromDate"] = self.request.get_argument("startDate")
+        req["FromDate"] = self.get_argument("startDate")
 
-    if 'endDate' in self.request.arguments and len(self.request.get_argument("endDate")) > 0:
-      if 'endTime' in self.request.arguments and len(self.request.get_argument("endTime")) > 0:
-        req["ToDate"] = str(self.request.get_argument("endDate") + " " + self.request.get_argument("endTime"))
+    if 'endDate' in self.request.arguments and len(self.get_argument("endDate")) > 0:
+      if 'endTime' in self.request.arguments and len(self.get_argument("endTime")) > 0:
+        req["ToDate"] = str(self.get_argument("endDate") + " " + self.get_argument("endTime"))
       else:
-        req["ToDate"] = self.request.get_argument("endDate")
+        req["ToDate"] = self.get_argument("endDate")
 
-    if 'date' in self.request.arguments and len(self.request.get_argument("date")) > 0:
-      req["LastUpdate"] = self.request.get_argument("date")
+    if 'date' in self.request.arguments and len(self.get_argument("date")) > 0:
+      req["LastUpdate"] = self.get_argument("date")
     gLogger.info("REQUEST:", req)
     return req
 
   @asyncGen
   def web_getJobInfoData(self):
     callback = {}
-    data = self.request.get_argument("data")
+    data = self.get_argument("data")
 
     RPC = PilotManagerClient()
-    if self.request.get_argument("data_kind") == "getPilotOutput":
+    if self.get_argument("data_kind") == "getPilotOutput":
       result = yield self.threadTask(RPC.getPilotOutput, data)
       if result["OK"]:
         callback = {"success": "true", "result": result["Value"]["StdOut"]}
       else:
         callback = {"success": "false", "error": result["Message"]}
-    elif self.request.get_argument("data_kind") == "getPilotError":
+    elif self.get_argument("data_kind") == "getPilotError":
       result = yield self.threadTask(RPC.getPilotOutput, data)
       if result["OK"]:
         if len(result["Value"]["StdErr"]) > 0:
@@ -249,7 +249,7 @@ class PilotMonitorHandler(WebHandler):
           callback = {"success": "false", "error": "Pilot Error is empty"}
       else:
         callback = {"success": "false", "error": result["Message"]}
-    elif self.request.get_argument("data_kind") == "getLoggingInfo":
+    elif self.get_argument("data_kind") == "getLoggingInfo":
       result = yield self.threadTask(RPC.getPilotLoggingInfo, data)
       if result["OK"]:
         callback = {"success": "true", "result": result["Value"]}
@@ -266,7 +266,7 @@ class PilotMonitorHandler(WebHandler):
 
     RPC = PilotManagerClient()
 
-    selector = self.request.get_argument("statsField")
+    selector = self.get_argument("statsField")
 
     if selector == 'Site':
       selector = "GridSite"

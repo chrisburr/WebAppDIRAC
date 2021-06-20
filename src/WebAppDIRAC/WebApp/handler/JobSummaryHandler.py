@@ -140,7 +140,7 @@ class JobSummaryHandler(WebHandler):
       self.globalSort = [["GridSite", "ASC"]]
       self.numberOfJobs = 500
       self.pageNumber = 0
-      req["ExpandSite"] = str(self.request.arguments.get("expand", ""))
+      req["ExpandSite"] = self.request.arguments.get("expand", "")
     else:
       self.pageNumber = 0
       self.numberOfJobs = 500
@@ -179,8 +179,8 @@ class JobSummaryHandler(WebHandler):
           if len(owner) > 0:
             req['Owner'] = owner
 
-      if 'date' in self.request.arguments and len(self.request.get_argument("date")) > 0:
-        req["LastUpdate"] = self.request.get_argument("date")
+      if 'date' in self.request.arguments and len(self.get_argument("date")) > 0:
+        req["LastUpdate"] = self.get_argument("date")
 
     gLogger.info("REQUEST:", req)
     return req

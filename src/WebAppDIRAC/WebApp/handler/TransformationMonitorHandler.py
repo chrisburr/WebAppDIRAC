@@ -159,31 +159,31 @@ class TransformationMonitorHandler(WebHandler):
   @asyncGen
   def web_action(self):
     try:
-      transid = int(self.request.get_argument("id"))
+      transid = int(self.get_argument("id"))
     except KeyError as excp:
       raise WErr(400, "Missing %s" % excp)
 
     callback = {}
 
-    if self.request.get_argument("data_kind") == "getLoggingInfo":
+    if self.get_argument("data_kind") == "getLoggingInfo":
       callback = yield self.threadTask(self.__getLoggingInfo, transid)
-    elif self.request.get_argument("data_kind") == "fileStatus":
+    elif self.get_argument("data_kind") == "fileStatus":
       callback = yield self.threadTask(self.__transformationFileStatus, transid)
-    elif self.request.get_argument("data_kind") == "fileProcessed":
+    elif self.get_argument("data_kind") == "fileProcessed":
       callback = yield self.threadTask(self.__fileRetry, transid, 'proc')
-    elif self.request.get_argument("data_kind") == "fileNotProcessed":
+    elif self.get_argument("data_kind") == "fileNotProcessed":
       callback = yield self.threadTask(self.__fileRetry, transid, 'not')
-    elif self.request.get_argument("data_kind") == "fileAllProcessed":
+    elif self.get_argument("data_kind") == "fileAllProcessed":
       callback = yield self.threadTask(self.__fileRetry, transid, 'all')
-    elif self.request.get_argument("data_kind") == "dataQuery":
+    elif self.get_argument("data_kind") == "dataQuery":
       callback = yield self.threadTask(self.__dataQuery, transid)
-    elif self.request.get_argument("data_kind") == "additionalParams":
+    elif self.get_argument("data_kind") == "additionalParams":
       callback = yield self.threadTask(self.__additionalParams, transid)
-    elif self.request.get_argument("data_kind") == "transformationDetail":
+    elif self.get_argument("data_kind") == "transformationDetail":
       callback = yield self.threadTask(self.__transformationDetail, transid)
-    elif self.request.get_argument("data_kind") == "extend":
+    elif self.get_argument("data_kind") == "extend":
       callback = yield self.threadTask(self.__extendTransformation, transid)
-    elif self.request.get_argument("data_kind") == "workflowxml":
+    elif self.get_argument("data_kind") == "workflowxml":
       callback = yield self.threadTask(self.__workflowxml, transid)
     else:
       callback = {"success": "false", "error": "Action is unknown!!!"}
@@ -194,7 +194,7 @@ class TransformationMonitorHandler(WebHandler):
   def web_executeOperation(self):
     try:
       cmd = self.request.arguments['action'][-1]
-      ids = self.request.get_argument("ids").split(",")
+      ids = self.get_argument("ids").split(",")
       ids = [int(i) for i in ids]
     except KeyError as excp:
       raise WErr(400, "Missing %s" % excp)
@@ -393,7 +393,7 @@ class TransformationMonitorHandler(WebHandler):
   def __extendTransformation(self, transid):
 
     try:
-      tasks = int(self.request.get_argument("tasks"))
+      tasks = int(self.get_argument("tasks"))
     except KeyError as excp:
       raise WErr(400, "Missing %s" % excp)
 
@@ -415,8 +415,8 @@ class TransformationMonitorHandler(WebHandler):
   @asyncGen
   def web_showFileStatus(self):
     callback = {}
-    start = int(self.request.get_argument("start"))
-    limit = int(self.request.get_argument("limit"))
+    start = int(self.get_argument("start"))
+    limit = int(self.get_argument("limit"))
     try:
       transid = self.request.arguments['transformationId'][-1]
       status = self.request.arguments['status'][-1]
@@ -478,8 +478,8 @@ class TransformationMonitorHandler(WebHandler):
   def web_setSite(self):
     callback = {}
     try:
-      transID = int(self.request.get_argument("TransformationId"))
-      runID = int(self.request.get_argument("RunNumber"))
+      transID = int(self.get_argument("TransformationId"))
+      runID = int(self.get_argument("RunNumber"))
       site = self.request.arguments['Site'][-1]
     except KeyError as excp:
       raise WErr(400, "Missing %s" % excp)
@@ -499,9 +499,9 @@ class TransformationMonitorHandler(WebHandler):
   def _request(self):
     req = {}
     if "limit" in self.request.arguments:
-      self.numberOfJobs = int(self.request.get_argument("limit"))
+      self.numberOfJobs = int(self.get_argument("limit"))
       if "start" in self.request.arguments:
-        self.pageNumber = int(self.request.get_argument("start"))
+        self.pageNumber = int(self.get_argument("start"))
       else:
         self.pageNumber = 0
     else:
@@ -554,19 +554,19 @@ class TransformationMonitorHandler(WebHandler):
     else:
       self.globalSort = [["TransformationID", "DESC"]]
 
-    if 'startDate' in self.request.arguments and self.request.get_argument("startDate"):
-      if 'startTime' in self.request.arguments and self.request.get_argument("startTime"):
-        req["FromDate"] = str(self.request.get_argument("startDate") + " " + self.request.get_argument("startTime"))
+    if 'startDate' in self.request.arguments and self.get_argument("startDate"):
+      if 'startTime' in self.request.arguments and self.get_argument("startTime"):
+        req["FromDate"] = str(self.get_argument("startDate") + " " + self.get_argument("startTime"))
       else:
-        req["FromDate"] = self.request.get_argument("startDate")
+        req["FromDate"] = self.get_argument("startDate")
 
-    if 'endDate' in self.request.arguments and self.request.get_argument("endDate"):
-      if 'endTime' in self.request.arguments and self.request.get_argument("endTime"):
-        req["ToDate"] = str(self.request.get_argument("endDate") + " " + self.request.get_argument("endTime"))
+    if 'endDate' in self.request.arguments and self.get_argument("endDate"):
+      if 'endTime' in self.request.arguments and self.get_argument("endTime"):
+        req["ToDate"] = str(self.get_argument("endDate") + " " + self.get_argument("endTime"))
       else:
-        req["ToDate"] = self.request.get_argument("endDate")
+        req["ToDate"] = self.get_argument("endDate")
 
-    if 'date' in self.request.arguments and self.request.get_argument("date"):
-      req["LastUpdate"] = self.request.get_argument("date")
+    if 'date' in self.request.arguments and self.get_argument("date"):
+      req["LastUpdate"] = self.get_argument("date")
     gLogger.verbose("REQUEST:", req)
     return req

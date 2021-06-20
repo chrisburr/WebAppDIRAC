@@ -102,9 +102,9 @@ class ComponentHistoryHandler(WebHandler):
 
     # Figure out what page we are at and how many results we are displaying
     if 'limit' in self.request.arguments:
-      self.numberOfInstallations = int(self.request.get_argument("limit"))
+      self.numberOfInstallations = int(self.get_argument("limit"))
       if 'start' in self.request.arguments:
-        self.pageNumber = int(self.request.get_argument("start"))
+        self.pageNumber = int(self.get_argument("start"))
       else:
         self.pageNumber = 0
     else:
@@ -127,20 +127,20 @@ class ComponentHistoryHandler(WebHandler):
     if 'type' in self.request.arguments:
       req['component']['Type'] = list(json.loads(self.request.arguments['type'][-1]))
 
-    if 'startDate' in self.request.arguments and len(self.request.get_argument("startDate")) > 0:
-      if len(self.request.get_argument("startTime")) > 0:
-        time = self.request.get_argument("startTime")
+    if 'startDate' in self.request.arguments and len(self.get_argument("startDate")) > 0:
+      if len(self.get_argument("startTime")) > 0:
+        time = self.get_argument("startTime")
       else:
         time = '00:00'
-      date = datetime.datetime.strptime('%s-%s' % (self.request.get_argument("startDate"), time), '%Y-%m-%d-%H:%M')
+      date = datetime.datetime.strptime('%s-%s' % (self.get_argument("startDate"), time), '%Y-%m-%d-%H:%M')
       req['installation']['InstallationTime.bigger'] = date
 
-    if 'endDate' in self.request.arguments and len(self.request.get_argument("endDate")) > 0:
-      if len(self.request.get_argument("endTime")) > 0:
-        time = self.request.get_argument("endTime")
+    if 'endDate' in self.request.arguments and len(self.get_argument("endDate")) > 0:
+      if len(self.get_argument("endTime")) > 0:
+        time = self.get_argument("endTime")
       else:
         time = '00:00'
-      date = datetime.datetime.strptime('%s-%s' % (self.request.get_argument("endDate"), time), '%Y-%m-%d-%H:%M')
+      date = datetime.datetime.strptime('%s-%s' % (self.get_argument("endDate"), time), '%Y-%m-%d-%H:%M')
       req['installation']['UnInstallationTime.smaller'] = date
 
     return req
