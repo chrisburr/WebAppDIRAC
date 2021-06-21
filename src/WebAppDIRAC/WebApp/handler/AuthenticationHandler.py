@@ -17,7 +17,7 @@ class AuthenticationHandler(WebHandler):
     """ Send mail to administrators
     """
     typeAuth = self.get_argument("typeauth")
-    loadValue = self.request.arguments["value"]
+    loadValue = self.get_argument("value")
     addresses = Conf.getCSValue('AdminsEmails')
     NotificationClient().sendMail(
         addresses, subject="Request from %s %s" %

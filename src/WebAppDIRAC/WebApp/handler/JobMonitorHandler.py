@@ -246,93 +246,70 @@ class JobMonitorHandler(WebHandler):
     self.finish(callback)
 
   def _request(self):
-    self.pageNumber = 0
-    self.numberOfJobs = 25
+    self.numberOfJobs = int(self.get_argument("limit", "25"))
+    self.pageNumber = int(self.get_argument("start", "0"))
     self.globalSort = [["JobID", "DESC"]]
-
     req = {}
 
-    if "limit" in self.request.arguments and self.get_argument("limit"):
-      self.numberOfJobs = int(self.get_argument("limit"))
-      if "start" in self.request.arguments and self.get_argument("start"):
-        self.pageNumber = int(self.get_argument("start"))
-      else:
-        self.pageNumber = 0
+    jobids = list(json.loads(self.get_argument("JobID", "[]")))
+    if jobids:
+      req['JobID'] = jobids
 
-    if "JobID" in self.request.arguments:
-      jobids = list(json.loads(self.request.arguments['JobID'][-1]))
-      if jobids:
-        req['JobID'] = jobids
+    pilotids = list(json.loads(self.get_argument("PilotJobReference", "[]")))
+    if pilotids:
+      req['PilotJobReference'] = pilotids
 
-    if "PilotJobReference" in self.request.arguments:
-      pilotids = list(json.loads(self.request.arguments['PilotJobReference'][-1]))
-      if pilotids:
-        req['PilotJobReference'] = pilotids
+    prodids = list(json.loads(self.get_argument("jobGroup", "[]")))
+    if prodids:
+      req['JobGroup'] = prodids
 
-    if "jobGroup" in self.request.arguments:
-      prodids = list(json.loads(self.request.arguments['jobGroup'][-1]))
-      if prodids:
-        req['JobGroup'] = prodids
+    sites = list(json.loads(self.get_argument("site", "[]")))
+    if sites:
+      req["Site"] = sites
 
-    if "site" in self.request.arguments:
-      sites = list(json.loads(self.request.arguments['site'][-1]))
-      if sites:
-        req["Site"] = sites
+    status = list(json.loads(self.get_argument("status", "[]")))
+    if status:
+      req["Status"] = status
 
-    if "status" in self.request.arguments:
-      status = list(json.loads(self.request.arguments['status'][-1]))
-      if status:
-        req["Status"] = status
+    minorstat = list(json.loads(self.get_argument("minorStatus", "[]")))
+    if minorstat:
+      req["MinorStatus"] = minorstat
 
-    if "minorStatus" in self.request.arguments:
-      minorstat = list(json.loads(self.request.arguments['minorStatus'][-1]))
-      if minorstat:
-        req["MinorStatus"] = minorstat
+    apps = list(json.loads(self.get_argument("appStatus", "[]")))
+    if apps:
+      req["ApplicationStatus"] = apps
 
-    if "appStatus" in self.request.arguments:
-      apps = list(json.loads(self.request.arguments['appStatus'][-1]))
-      if apps:
-        req["ApplicationStatus"] = apps
+    types = list(json.loads(self.get_argument("jobType", "[]")))
+    if types:
+      req["JobType"] = types
 
-    if "jobType" in self.request.arguments:
-      types = list(json.loads(self.request.arguments['jobType'][-1]))
-      if types:
-        req["JobType"] = types
+    owner = list(json.loads(self.get_argument("owner", "[]")))
+    if owner:
+      req["Owner"] = owner
 
-    if "owner" in self.request.arguments:
-      owner = list(json.loads(self.request.arguments['owner'][-1]))
-      if owner:
-        req["Owner"] = owner
+    ownerGroup = list(json.loads(self.get_argument("OwnerGroup", "[]")))
+    if ownerGroup:
+      req["OwnerGroup"] = ownerGroup
 
-    if "OwnerGroup" in self.request.arguments:
-      ownerGroup = list(json.loads(self.request.arguments['OwnerGroup'][-1]))
-      if ownerGroup:
-        req["OwnerGroup"] = ownerGroup
+    if self.get_argument("startDate", ""):
+      req["FromDate"] = self.get_argument("startDate")
+      if self.get_argument("startTime", ""):
+        req["FromDate"] += " " + self.get_argument("startTime")
 
-    if 'startDate' in self.request.arguments and self.get_argument("startDate"):
-      if 'startTime' in self.request.arguments and self.get_argument("startTime"):
-        req["FromDate"] = str(self.get_argument("startDate") + " " + self.get_argument("startTime"))
-      else:
-        req["FromDate"] = self.get_argument("startDate")
+    if self.get_argument("endDate", ""):
+      req["ToDate"] = self.get_argument("endDate")
+      if self.get_argument("endTime", ""):
+        req["ToDate"] += " " + self.get_argument("endTime")
 
-    if 'endDate' in self.request.arguments and self.get_argument("endDate"):
-      if 'endTime' in self.request.arguments and self.get_argument("endTime"):
-        req["ToDate"] = str(self.get_argument("endDate") + " " + self.get_argument("endTime"))
-      else:
-        req["ToDate"] = self.get_argument("endDate")
-
-    if 'date' in self.request.arguments and self.get_argument("date"):
+    if self.get_argument("date", ""):
       req["LastUpdate"] = self.get_argument("date")
 
-    if 'sort' in self.request.arguments:
-      sort = json.loads(self.request.arguments['sort'][-1])
-      if sort:
-        self.globalSort = []
-        for i in sort:
-          if "LastSignOfLife" not in i['property']:
-            self.globalSort += [[str(i['property']), str(i['direction'])]]
-    else:
-      self.globalSort = [["JobID", "DESC"]]
+    sort = json.loads(self.get_argument("sort", "[]"))
+    if sort:
+      self.globalSort = []
+      for i in sort:
+        if "LastSignOfLife" not in i['property']:
+          self.globalSort += [[str(i['property']), str(i['direction'])]]
 
     gLogger.debug("Request", str(req))
     return req

@@ -30,14 +30,13 @@ class FileCatalogHandler(WebHandler):
   def web_getSelectedFiles(self):
     """ Method to get the selected file(s)
     """
-    arguments=self.request.arguments
-    gLogger.always("getSelectedFiles: incoming arguments %s" % arguments)
+    gLogger.always("getSelectedFiles: incoming arguments", repr(self.request.arguments))
 
     # First pass: download files and check for the success
-    if "archivePath" not in arguments:
+    if "archivePath" not in self.request.arguments:
       tmpdir = '/tmp/' + str(time.time()) + str(random.random())
       dataMgr = DataManager(vo=self.vo)
-      lfnStr = str(arguments['path'][0])
+      lfnStr = self.get_argument("path")
       if not os.path.isdir(tmpdir):
         os.makedirs(tmpdir)
       os.chdir(tmpdir)
@@ -87,7 +86,7 @@ class FileCatalogHandler(WebHandler):
 
     else:
       # Second pass: deliver the requested archive
-      archivePath = arguments['archivePath'][0]
+      archivePath = self.get_argument("archivePath")
       # read zip file
       with open(archivePath, "rb") as archive:
         data = archive.read()
@@ -141,26 +140,21 @@ class FileCatalogHandler(WebHandler):
     """ Method to read all the available options for a metadata field
     """
     try:
-      compat = dict()
+      compat = {}
       for key in self.request.arguments:
-
-        parts = str(key).split(".")
-
+        parts = key.split(".")
         if len(parts) != 3:
           continue
+        _, name, sign = parts
 
-        key = str(key)
-        name = parts[1]
-        sign = parts[2]
-
-        if not len(name) > 0:
+        if not name:
           continue
 
-        value = str(self.request.arguments[key][0]).split("|")
+        value = self.get_argument(key).split("|")
 
         # check existence of the 'name' section
         if name not in compat:
-          compat[name] = dict()
+          compat[name] = {}
 
         # check existence of the 'sign' section
         if sign not in compat[name]:
@@ -288,16 +282,11 @@ class FileCatalogHandler(WebHandler):
     gLogger.always("request: metafields: %s " % meta)
 
     for param in self.request.arguments:
-
-      tmp = str(param).split('.')
-
+      tmp = param.split('.')
       if len(tmp) != 3:
         continue
-
-      name = tmp[1]
-      logic = tmp[2]
-      value = self.request.arguments[param][0].split("|")
-
+      _, name, logic = tmp
+      value = self.get_argument(param).split("|")
       if logic not in ["in", "nin", "=", "!=", ">=", "<=", ">", "<"]:
         gLogger.always("Operand '%s' is not supported " % logic)
         continue
@@ -305,7 +294,7 @@ class FileCatalogHandler(WebHandler):
       if name in meta:
         # check existence of the 'name' section
         if name not in req["selection"]:
-          req["selection"][name] = dict()
+          req["selection"][name] = {}
 
         # check existence of the 'sign' section
         if logic not in req["selection"][name]:

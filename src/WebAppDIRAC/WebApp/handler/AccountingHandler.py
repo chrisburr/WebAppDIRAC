@@ -85,18 +85,14 @@ class AccountingHandler(WebHandler):
     self.finish({"success": "true", "result": callback})
 
   def __parseFormParams(self):
-    params = self.request.arguments
-
     pD = {}
     extraParams = {}
     pinDates = False
 
-    for name in params:
+    for name in self.request.arguments:
       if name.find("_") != 0:
         continue
-      value = params[name][0]
-      name = name[1:]
-      pD[name] = str(value)
+      pD[name[1:]] = self.get_argument(name)
 
     # Personalized title?
     if 'plotTitle' in pD:

@@ -250,7 +250,7 @@ class SystemAdministrationHandler(WebHandler):
       if not len(target) == 2:
         continue
 
-      system = self.request.arguments[i][0]
+      system = self.get_argument(i)
       gLogger.always("System: %s" % system)
       host = target[1]
       gLogger.always("Host: %s" % host)

@@ -99,33 +99,24 @@ class ComponentHistoryHandler(WebHandler):
     selectors
     """
     req = {'installation': {}, 'component': {}, 'host': {}}
-
-    # Figure out what page we are at and how many results we are displaying
-    if 'limit' in self.request.arguments:
-      self.numberOfInstallations = int(self.get_argument("limit"))
-      if 'start' in self.request.arguments:
-        self.pageNumber = int(self.get_argument("start"))
-      else:
-        self.pageNumber = 0
-    else:
-      self.numberOfInstallations = 25
-      self.pageNumber = 0
+    self.numberOfInstallations = int(self.get_argument("limit", "25"))
+    self.pageNumber = int(self.get_argument("start", "0"))
 
     # Check every possible selector and get its value ( if any )
     if 'name' in self.request.arguments:
-      req['installation']['Instance'] = list(json.loads(self.request.arguments['name'][-1]))
+      req['installation']['Instance'] = list(json.loads(self.get_argument("name")))
 
     if 'host' in self.request.arguments:
-      req['host']['HostName'] = list(json.loads(self.request.arguments['host'][-1]))
+      req['host']['HostName'] = list(json.loads(self.get_argument("host")))
 
     if 'system' in self.request.arguments:
-      req['component']['System'] = list(json.loads(self.request.arguments['system'][-1]))
+      req['component']['System'] = list(json.loads(self.get_argument("system")))
 
     if 'module' in self.request.arguments:
-      req['component']['Module'] = list(json.loads(self.request.arguments['module'][-1]))
+      req['component']['Module'] = list(json.loads(self.get_argument("module")))
 
     if 'type' in self.request.arguments:
-      req['component']['Type'] = list(json.loads(self.request.arguments['type'][-1]))
+      req['component']['Type'] = list(json.loads(self.get_argument("type")))
 
     if 'startDate' in self.request.arguments and len(self.get_argument("startDate")) > 0:
       if len(self.get_argument("startTime")) > 0:

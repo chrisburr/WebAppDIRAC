@@ -16,17 +16,11 @@ class RootHandler(WebHandler):
   LOCATION = "/"
 
   def web_changeGroup(self):
-    try:
-      to = self.request.arguments['to'][-1]
-    except KeyError:
-      raise WErr(400, "Missing 'to' argument")
+    to = self.get_argument("to")
     self.__change(group=to)
 
   def web_changeSetup(self):
-    try:
-      to = self.request.arguments['to'][-1]
-    except KeyError:
-      raise WErr(400, "Missing 'to' argument")
+    to = self.get_argument("to")
     self.__change(setup=to)
 
   def __change(self, setup=None, group=None):
